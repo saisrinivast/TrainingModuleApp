@@ -10,7 +10,7 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/trainings')
+    axios.get('https://training-backend.onrender.com/api/trainings')
       .then(res => setTrainings(res.data));
   }, []);
 
