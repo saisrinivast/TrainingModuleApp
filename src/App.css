@@ -1,0 +1,186 @@
+/* General page styling */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+}
+
+/* Main App container */
+.App {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Navigation Bar */
+.nav {
+  background-color: #1e1e2f;
+  padding: 15px;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 8px 14px;
+  background-color: #343456;
+  border-radius: 6px;
+  transition: background 0.3s ease;
+}
+
+.nav a:hover {
+  background-color: #4f4f6f;
+}
+
+/* Headings */
+h1 {
+  text-align: center;
+  font-size: 28px;
+  color: #222;
+  margin-bottom: 25px;
+}
+
+/* Form styling */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+}
+
+form input[type="text"],
+form textarea,
+form input[type="file"] {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+form button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  font-size: 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+form button:hover {
+  background-color: #0056b3;
+}
+
+/* Search and Export Section */
+input[type="text"] {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.export-buttons button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.export-buttons button:hover {
+  background-color: #1e7e34;
+}
+
+/* Training items list */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  background-color: #ffffff;
+  margin-bottom: 15px;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+li:hover {
+  box-shadow: 0px 6px 14px rgba(0,0,0,0.15);
+}
+
+li h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+}
+
+li p {
+  font-size: 16px;
+  color: #555;
+  margin: 8px 0;
+}
+
+/* Media */
+img, video {
+  margin-top: 10px;
+  max-width: 100%;
+  border-radius: 6px;
+}
+
+/* Delete button */
+li button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+li button:hover {
+  background-color: #a71d2a;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .nav {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .export-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
