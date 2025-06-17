@@ -1,7 +1,7 @@
 {
   "name": "training-module-backend",
   "version": "1.0.0",
-  "main": "backend/server.js",
+  "main": "src/server.js",
   "scripts": {
     "start": "node server.js"
   },
