@@ -5,18 +5,25 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
+const BASE_URL = 'https://training-backend.onrender.com';
+
 function Home() {
   const [trainings, setTrainings] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    axios.get('https://training-backend.onrender.com/api/trainings')
-      .then(res => setTrainings(res.data));
+    axios.get(`${BASE_URL}/api/trainings`)
+      .then(res => setTrainings(res.data))
+      .catch(err => console.error("Failed to fetch trainings:", err));
   }, []);
 
   const handleDelete = async id => {
-    await axios.delete(`http://localhost:5000/api/trainings/${id}`);
-    setTrainings(trainings.filter(t => t._id !== id));
+    try {
+      await axios.delete(`${BASE_URL}/api/trainings/${id}`);
+      setTrainings(trainings.filter(t => t._id !== id));
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
   };
 
   const exportToPDF = () => {
@@ -85,10 +92,10 @@ function Home() {
             <h3>{t.title}</h3>
             <p>{t.description}</p>
             {t.imageUrl && (
-              <img src={`http://localhost:5000${t.imageUrl}`} width="200" alt="Slide" />
+              <img src={`${BASE_URL}${t.imageUrl}`} width="200" alt="Slide" />
             )}
             {t.videoUrl && (
-              <video width="320" controls src={`http://localhost:5000${t.videoUrl}`} />
+              <video width="320" controls src={`${BASE_URL}${t.videoUrl}`} />
             )}
             <button onClick={() => handleDelete(t._id)}>Delete</button>
           </li>
