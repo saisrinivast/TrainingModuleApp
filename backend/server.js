@@ -1,4 +1,3 @@
-// index.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -14,34 +13,37 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+mongoose
+  .connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-// Mongoose Schema
+// Schema & Model
 const trainingSchema = new mongoose.Schema({
   title: String,
   description: String,
   imageUrl: String,
   videoUrl: String,
 });
+
 const Training = mongoose.model('Training', trainingSchema);
 
-// Multer Setup
+// Multer config for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, 'uploads'));
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + '-' + file.originalname);
-  }
+  },
 });
+
 const upload = multer({ storage });
 
-// API Routes
+// Routes
 app.post('/api/upload', upload.single('file'), (req, res) => {
   res.json({ filePath: `/uploads/${req.file.filename}` });
 });
@@ -62,8 +64,8 @@ app.delete('/api/trainings/:id', async (req, res) => {
   res.sendStatus(200);
 });
 
-// Server
+// Port setup
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
