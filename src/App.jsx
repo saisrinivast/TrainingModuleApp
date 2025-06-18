@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
-import Home from "./Home"
-import AddTraining from './AddTraining';
+import Home from './Components/Home';
+import AddTraining from './Components/AddTraining';
 
 function App() {
   return (
