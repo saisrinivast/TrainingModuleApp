@@ -12,7 +12,8 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    axios.get(`${BASE_URL}/api/trainings`)
+    axios
+      .get(`${BASE_URL}/api/trainings`)
       .then(res => setTrainings(res.data))
       .catch(err => console.error("Failed to fetch trainings:", err));
   }, []);
@@ -20,7 +21,7 @@ function Home() {
   const handleDelete = async id => {
     try {
       await axios.delete(`${BASE_URL}/api/trainings/${id}`);
-      setTrainings(trainings.filter(t => t._id !== id));
+      setTrainings(prev => prev.filter(t => t._id !== id));
     } catch (err) {
       console.error("Delete failed:", err);
     }
@@ -56,9 +57,7 @@ function Home() {
     setTrainings(items);
   };
 
-  const handleDragOver = e => {
-    e.preventDefault();
-  };
+  const handleDragOver = e => e.preventDefault();
 
   const filteredTrainings = trainings.filter(t =>
     t.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -92,10 +91,20 @@ function Home() {
             <h3>{t.title}</h3>
             <p>{t.description}</p>
             {t.imageUrl && (
-              <img src={`${BASE_URL}${t.imageUrl}`} width="200" alt="Slide" />
+              <img
+                src={`${BASE_URL}${t.imageUrl}`}
+                width="200"
+                alt="Slide"
+                onError={e => (e.target.style.display = 'none')}
+              />
             )}
             {t.videoUrl && (
-              <video width="320" controls src={`${BASE_URL}${t.videoUrl}`} />
+              <video
+                width="320"
+                controls
+                src={`${BASE_URL}${t.videoUrl}`}
+                onError={e => (e.target.style.display = 'none')}
+              />
             )}
             <button onClick={() => handleDelete(t._id)}>Delete</button>
           </li>

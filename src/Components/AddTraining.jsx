@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const BASE_URL = 'https://training-backend.onrender.com';
+
 function AddTraining() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -10,25 +12,32 @@ function AddTraining() {
     e.preventDefault();
     let filePath = '';
 
-    if (file) {
-      const formData = new FormData();
-      formData.append('file', file);
-      const uploadRes = await axios.post('http://localhost:5000/api/upload', formData);
-      filePath = uploadRes.data.filePath;
+    try {
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        const uploadRes = await axios.post(`${BASE_URL}/api/upload`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        filePath = uploadRes.data.filePath;
+      }
+
+      const newTraining = {
+        title,
+        description,
+        imageUrl: file?.type.startsWith('image') ? filePath : '',
+        videoUrl: file?.type.startsWith('video') ? filePath : ''
+      };
+
+      await axios.post(`${BASE_URL}/api/trainings`, newTraining);
+      setTitle('');
+      setDescription('');
+      setFile(null);
+      alert("Training added!");
+    } catch (err) {
+      console.error("Upload or Save failed:", err);
+      alert("Failed to add training. Please try again.");
     }
-
-    const newTraining = {
-      title,
-      description,
-      imageUrl: file?.type.startsWith('image') ? filePath : '',
-      videoUrl: file?.type.startsWith('video') ? filePath : ''
-    };
-
-    await axios.post('http://localhost:5000/api/trainings', newTraining);
-    setTitle('');
-    setDescription('');
-    setFile(null);
-    alert("Training added!");
   };
 
   return (
