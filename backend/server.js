@@ -1,79 +1,84 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const multer = require('multer');
+const dotenv = require('dotenv');
 const path = require('path');
-require('dotenv').config();
+
+dotenv.config();
 
 const app = express();
 
+// CORS Setup
+app.use(cors({
+  origin: 'https://training-module-app.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+}));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Default route to confirm server is working
-app.get('/', (req, res) => {
-  res.send('Training Module API is working!');
-});
-
 // MongoDB Connection
-mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error(' MongoDB connection error:', err));
+mongoose.connect(process.env.MONGO_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('Connected to MongoDB'))
+.catch((err) => console.error('MongoDB connection error:', err));
 
-// Schema & Model
+// Multer File Upload Setup
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  }
+});
+const upload = multer({ storage });
+
+// Mongoose Schema & Model
 const trainingSchema = new mongoose.Schema({
   title: String,
   description: String,
-  imageUrl: String,
   videoUrl: String,
+  imageUrl: String,
 });
-
 const Training = mongoose.model('Training', trainingSchema);
 
-// Multer config for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-
-const upload = multer({ storage });
-
-// Upload Route
-app.post('/api/upload', upload.single('file'), (req, res) => {
-  res.json({ filePath: `/uploads/${req.file.filename}` });
-});
-
-// Get All Trainings
+// Routes
 app.get('/api/trainings', async (req, res) => {
-  const trainings = await Training.find();
-  res.json(trainings);
+  try {
+    const trainings = await Training.find();
+    res.json(trainings);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch trainings' });
+  }
 });
 
-// Add Training
-app.post('/api/trainings', async (req, res) => {
-  const newTraining = new Training(req.body);
-  await newTraining.save();
-  res.json(newTraining);
-});
+app.post('/api/trainings', upload.single('file'), async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const file = req.file;
 
-// Delete Training
-app.delete('/api/trainings/:id', async (req, res) => {
-  await Training.findByIdAndDelete(req.params.id);
-  res.sendStatus(200);
+    const training = new Training({
+      title,
+      description,
+      imageUrl: file?.mimetype.startsWith('image') ? `${req.protocol}://${req.get('host')}/uploads/${file.filename}` : '',
+      videoUrl: file?.mimetype.startsWith('video') ? `${req.protocol}://${req.get('host')}/uploads/${file.filename}` : '',
+    });
+
+    await training.save();
+    res.status(201).json({ message: 'Training added successfully', training });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to add training' });
+  }
 });
 
 // Start Server
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
-  console.log(` Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
