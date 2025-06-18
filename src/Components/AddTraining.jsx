@@ -21,10 +21,10 @@ function AddTraining() {
         });
 
         filePath = uploadRes.data.filePath;
-        console.log("📂 Uploaded file path:", filePath);
+        console.log(" Uploaded file path:", filePath);
       }
 
-      console.log("📁 File type:", file?.type);
+      console.log(" File type:", file?.type);
 
       const newTraining = {
         title,
@@ -33,18 +33,18 @@ function AddTraining() {
         videoUrl: file?.type?.startsWith('video') ? filePath : ''
       };
 
-      console.log("🚀 Sending training data:", newTraining);
+      console.log(" Sending training data:", newTraining);
 
       const res = await axios.post(`${BASE_URL}/api/trainings`, newTraining);
-      console.log("✅ Training added:", res.data);
+      console.log(" Training added:", res.data);
 
       setTitle('');
       setDescription('');
       setFile(null);
-      alert('✅ Training added successfully!');
+      alert(' Training added successfully!');
     } catch (err) {
-      console.error("❌ Failed to add training:", err.response?.data || err.message);
-      alert('❌ Failed to add training. Please try again.');
+      console.error(" Failed to add training:", err.response?.data || err.message);
+      alert(' Failed to add training. Please try again.');
     }
   };
 
