@@ -9,14 +9,13 @@ dotenv.config();
 
 const app = express();
 
-// CORS Setup
-const allowedOrigins = [
-  'https://training-module-k6kn8821v-sai-srinivas-ts-projects.vercel.app',
-  'http://localhost:3000'
-];
-
+// CORS Setup for Vercel and Localhost
 app.use(cors({
   origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://training-module-app.vercel.app',
+      'http://localhost:3000'
+    ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -25,10 +24,8 @@ app.use(cors({
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: false
+  allowedHeaders: ['Content-Type'],
 }));
-
-app.options('*', cors());
 
 // Middleware
 app.use(express.json());
