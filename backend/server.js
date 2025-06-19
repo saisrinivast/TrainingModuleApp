@@ -17,15 +17,20 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
+    // Allow requests with no origin (e.g., curl or mobile apps)
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.error('Blocked by CORS:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: false // set to true only if using cookies/auth headers
 }));
+
+// Handle preflight requests for all routes
+app.options('*', cors());
 
 // === Middleware ===
 app.use(express.json());
@@ -59,6 +64,11 @@ const trainingSchema = new mongoose.Schema({
 const Training = mongoose.model('Training', trainingSchema);
 
 // === Routes ===
+
+// Test ping route
+app.get('/api/ping', (req, res) => {
+  res.json({ message: 'pong from backend' });
+});
 
 // GET all trainings
 app.get('/api/trainings', async (req, res) => {
