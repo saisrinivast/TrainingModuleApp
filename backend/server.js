@@ -9,10 +9,18 @@ dotenv.config();
 
 const app = express();
 
-// === CORS FIX ===
-// TEMPORARILY ALLOW ALL ORIGINS FOR TESTING
-app.use(cors());
-app.options('*', cors()); // preflight requests
+// === CORS Setup ===
+// ✅ ONLY allow your frontend (Vercel) and optionally localhost
+app.use(
+  cors({
+    origin: 'https://training-module-app.vercel.app', // your Vercel frontend
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: false, // true only if you're sending cookies or auth headers
+  })
+);
+
+// ✅ Handle preflight requests
+app.options('*', cors());
 
 // === Middleware ===
 app.use(express.json());
@@ -20,19 +28,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // === MongoDB Connection ===
-mongoose.connect(process.env.MONGO_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('Connected to MongoDB'))
-.catch(err => console.error('MongoDB connection error:', err));
+mongoose
+  .connect(process.env.MONGO_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
 // === File Upload Setup ===
 const storage = multer.diskStorage({
   destination: 'uploads/',
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
-  }
+  },
 });
 const upload = multer({ storage });
 
@@ -40,48 +49,51 @@ const upload = multer({ storage });
 const trainingSchema = new mongoose.Schema({
   title: String,
   description: String,
+  videoUrl: String,
   imageUrl: String,
-  videoUrl: String
 });
 const Training = mongoose.model('Training', trainingSchema);
 
 // === Routes ===
+
+// 🔁 Ping Test Route (for CORS debugging)
 app.get('/api/ping', (req, res) => {
   res.json({ message: 'pong from backend' });
 });
 
+// GET all trainings
 app.get('/api/trainings', async (req, res) => {
   try {
     const trainings = await Training.find();
     res.json(trainings);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: 'Failed to fetch trainings' });
   }
 });
 
-app.post('/api/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-
-  const filePath = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-  res.status(200).json({ filePath });
-});
-
-app.post('/api/trainings', async (req, res) => {
+// POST a new training
+app.post('/api/trainings', upload.single('file'), async (req, res) => {
   try {
-    const { title, description, imageUrl, videoUrl } = req.body;
+    const { title, description } = req.body;
+    const file = req.file;
 
     const training = new Training({
       title,
       description,
-      imageUrl: imageUrl || '',
-      videoUrl: videoUrl || ''
+      imageUrl:
+        file?.mimetype.startsWith('image')
+          ? `${req.protocol}://${req.get('host')}/uploads/${file.filename}`
+          : '',
+      videoUrl:
+        file?.mimetype.startsWith('video')
+          ? `${req.protocol}://${req.get('host')}/uploads/${file.filename}`
+          : '',
     });
 
     await training.save();
-    res.status(201).json({ message: 'Training added successfully', training });
+    res
+      .status(201)
+      .json({ message: 'Training added successfully', training });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to add training' });
