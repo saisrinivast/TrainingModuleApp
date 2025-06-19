@@ -9,30 +9,17 @@ dotenv.config();
 
 const app = express();
 
-// CORS Setup for Vercel and Localhost
-app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'https://training-module-app.vercel.app',
-      'http://localhost:3000'
-    ];
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.error('Blocked by CORS:', origin);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type'],
-}));
+// === CORS FIX ===
+// TEMPORARILY ALLOW ALL ORIGINS FOR TESTING
+app.use(cors());
+app.options('*', cors()); // preflight requests
 
-// Middleware
+// === Middleware ===
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// MongoDB Connection
+// === MongoDB Connection ===
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -40,7 +27,7 @@ mongoose.connect(process.env.MONGO_URL, {
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// File Upload Setup
+// === File Upload Setup ===
 const storage = multer.diskStorage({
   destination: 'uploads/',
   filename: (req, file, cb) => {
@@ -49,7 +36,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Mongoose Schema and Model
+// === Mongoose Schema ===
 const trainingSchema = new mongoose.Schema({
   title: String,
   description: String,
@@ -58,7 +45,7 @@ const trainingSchema = new mongoose.Schema({
 });
 const Training = mongoose.model('Training', trainingSchema);
 
-// Routes
+// === Routes ===
 app.get('/api/ping', (req, res) => {
   res.json({ message: 'pong from backend' });
 });
@@ -101,7 +88,7 @@ app.post('/api/trainings', async (req, res) => {
   }
 });
 
-// Start Server
+// === Start Server ===
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
