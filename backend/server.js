@@ -9,8 +9,7 @@ dotenv.config();
 
 const app = express();
 
-// === CORS Setup ===
-// ✅ ONLY allow your frontend (Vercel) and optionally localhost
+//  CORS Setup 
 app.use(
   cors({
     origin: 'https://training-module-app.vercel.app', // your Vercel frontend
@@ -19,15 +18,14 @@ app.use(
   })
 );
 
-// ✅ Handle preflight requests
 app.options('*', cors());
 
-// === Middleware ===
+//  Middleware 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// === MongoDB Connection ===
+// MongoDB Connection 
 mongoose
   .connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
@@ -36,7 +34,7 @@ mongoose
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// === File Upload Setup ===
+// File Upload Setup 
 const storage = multer.diskStorage({
   destination: 'uploads/',
   filename: (req, file, cb) => {
@@ -45,7 +43,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// === Mongoose Schema ===
+//  Mongoose Schema 
 const trainingSchema = new mongoose.Schema({
   title: String,
   description: String,
@@ -54,9 +52,7 @@ const trainingSchema = new mongoose.Schema({
 });
 const Training = mongoose.model('Training', trainingSchema);
 
-// === Routes ===
-
-// 🔁 Ping Test Route (for CORS debugging)
+// Routes 
 app.get('/api/ping', (req, res) => {
   res.json({ message: 'pong from backend' });
 });
